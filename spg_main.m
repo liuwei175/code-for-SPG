@@ -1,3 +1,7 @@
+% Recent revision by Liu Wei was on May 5th, 2020
+% main code for SPG 
+% one can delete % as follows and try other problems
+%-------------------------------------
 % clear;
 % % 
 % visibleSize=5;mm1=30;hiddenSize =5;mm=100;
@@ -29,6 +33,7 @@
 % 
 % thetak = inismall(hiddenSize, visibleSize,testdata,1,mm);
 % thetak=thetakk;
+%-------------------------------------
 
 W1 = reshape(thetak(1:hiddenSize*visibleSize), hiddenSize, visibleSize);
 b1 = thetak(hiddenSize*visibleSize+1:hiddenSize*visibleSize+hiddenSize);
@@ -199,19 +204,6 @@ function [W,b1,V,ttadmm,kktvio] = tied_sub(Wk,b1k,Vk,gradW,gradb1,gradV,data,LW,
         %end
         
         U=U2;
-        
-        
-
-
-
-%         W=What(:,1:N0);
-%         b1=What(:,end);
-%         theta = [W(:);b1(:);V(:)];
-%         
-%         L=diag([ones(size(W(:),1),1)*LW;ones(size(b1(:),1),1)*Lb;ones(size(V(:),1),1)*Lv]);
-%         
-%         thetak = [Wk(:);b1k(:);Vk(:)];
-%         costadmm= fval_sub(theta,thetak,gradW,gradb1,gradV,L)+trace(gamma'*Uvar)+L2/2*trace(Uvar'*Uvar);
 
     end
     W=What(:,1:N0);
@@ -240,62 +232,63 @@ function [V,U] = updateUV_tied(a,b,c1,c2)
 end
 
 function [cost,gradW,gradb1,gradb2,gradV,tt] = tildeF(theta,V,mu,hiddenSize,beta,testdata)
-%tildeF= ﻿\tilde F(W,b,V)=1/n sum \|(W^Tv_i+b_2)_{+}\|_2^2+1/n |X|_F^2+ lb1 sum e^Tv_i+lb2 \|W\|_F^2...
-...-sum x_i^T\tilde{f} (W^Tv_i+b_2,\mu)/n*2+\beta\sum_{i=1}^{n}e^T\left(v_i-\tilde{f}(Wx_i+b_{1},\mu).
-% caculate the function value and gradient of the smoothing function of F
-% bbeta represents the value of beta
-% Recent revision by Liu Wei was on May 5th, 2020
-[visibleSize,n]=size(testdata);
+    %tildeF= ﻿\tilde F(W,b,V)=1/n sum \|(W^Tv_i+b_2)_{+}\|_2^2+1/n |X|_F^2+ lb1 sum e^Tv_i+lb2 \|W\|_F^2...
+    ...-sum x_i^T\tilde{f} (W^Tv_i+b_2,\mu)/n*2+\beta\sum_{i=1}^{n}e^T\left(v_i-\tilde{f}(Wx_i+b_{1},\mu).
+    % caculate the function value and gradient of the smoothing function of F
+    % bbeta represents the value of beta
+    % Recent revision by Liu Wei was on May 5th, 2020
+    
+    [visibleSize,n]=size(testdata);
 
-tic;
-W = reshape(theta(1:hiddenSize*visibleSize), hiddenSize, visibleSize);
-%W1k = reshape(thetak(1:hiddenSize*visibleSize), hiddenSize, visibleSize);
-%W2 = reshape(theta(hiddenSize*visibleSize+1:2*hiddenSize*visibleSize), visibleSize, hiddenSize);
-b1 = theta(hiddenSize*visibleSize+1:hiddenSize*visibleSize+hiddenSize);
-%b1k = thetak(hiddenSize*visibleSize+1:hiddenSize*visibleSize+hiddenSize);
-b2 = theta(hiddenSize*visibleSize+hiddenSize+1:end);
+    tic;
+    W = reshape(theta(1:hiddenSize*visibleSize), hiddenSize, visibleSize);
+    %W1k = reshape(thetak(1:hiddenSize*visibleSize), hiddenSize, visibleSize);
+    %W2 = reshape(theta(hiddenSize*visibleSize+1:2*hiddenSize*visibleSize), visibleSize, hiddenSize);
+    b1 = theta(hiddenSize*visibleSize+1:hiddenSize*visibleSize+hiddenSize);
+    %b1k = thetak(hiddenSize*visibleSize+1:hiddenSize*visibleSize+hiddenSize);
+    b2 = theta(hiddenSize*visibleSize+hiddenSize+1:end);
 
-%cost=cost+sum(sum((theta-thetak).^2))/2;
-X=testdata;
-
-
-WTVB = W'*V+repmat(b2,1,n); 
-mWTVB  = max(WTVB,0);
-WXB = W*X + repmat(b1,1,n);
-sWTVB = smoothRELU(WTVB,mu);
-XsWTVB = X.* sWTVB;
-%sWXB = smoothRELU(WXB,mu);
-gWTVB = gradsmoothRELU(WTVB,mu);
-XgWTVB = X.* gWTVB;
-gWXB = gradsmoothRELU(WXB,mu);
-mXWTVB=mWTVB-XgWTVB;
-
-gradW = 2/n * V * mXWTVB'-beta*gWXB*X';
-gradV = beta + 2/n*W*mWTVB-2/n*W*XgWTVB;
-gradb1= -beta*sum(gWXB,2);
-gradb2= 2/n*sum(mXWTVB,2);
-tt=toc;
-
-cost = 1/n*sum(sum(mWTVB.^2))-2/n*sum(sum(XsWTVB));%+beta*sum(sum(V-sWXB));
+    %cost=cost+sum(sum((theta-thetak).^2))/2;
+    X=testdata;
 
 
-%grad=[gradW(:); gradb1(:); gradb2(:)];
-%gradb=[gradb1(:); gradb2(:)];
-%grad=grad+sum(theta-thetak);
+    WTVB = W'*V+repmat(b2,1,n); 
+    mWTVB  = max(WTVB,0);
+    WXB = W*X + repmat(b1,1,n);
+    sWTVB = smoothRELU(WTVB,mu);
+    XsWTVB = X.* sWTVB;
+    %sWXB = smoothRELU(WXB,mu);
+    gWTVB = gradsmoothRELU(WTVB,mu);
+    XgWTVB = X.* gWTVB;
+    gWXB = gradsmoothRELU(WXB,mu);
+    mXWTVB=mWTVB-XgWTVB;
+
+    gradW = 2/n * V * mXWTVB'-beta*gWXB*X';
+    gradV = beta + 2/n*W*mWTVB-2/n*W*XgWTVB;
+    gradb1= -beta*sum(gWXB,2);
+    gradb2= 2/n*sum(mXWTVB,2);
+    tt=toc;
+
+    cost = 1/n*sum(sum(mWTVB.^2))-2/n*sum(sum(XsWTVB));%+beta*sum(sum(V-sWXB));
+
+
+    %grad=[gradW(:); gradb1(:); gradb2(:)];
+    %gradb=[gradb1(:); gradb2(:)];
+    %grad=grad+sum(theta-thetak);
 end
 
 function f = gradsmoothRELU(z,mu)
-%smoothing function for RELU
-f=min(max(z/mu,0),1);
+    %gradient of the smoothing function for RELU
+    f=min(max(z/mu,0),1);
 end
 
 function f = smoothRELU(z,mu)
-%smoothing function for RELU
-f=zeros(size(z));
-f(z>=mu)=z(z>=mu)-mu/2;
-f(z<=0)=-1;
-index=(f==0);
-f(index)=z(index).*z(index)/2/mu;
-f(f<0)=0;
+    %smoothing function for RELU
+    f=zeros(size(z));
+    f(z>=mu)=z(z>=mu)-mu/2;
+    f(z<=0)=-1;
+    index=(f==0);
+    f(index)=z(index).*z(index)/2/mu;
+    f(f<0)=0;
 end
 
